@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#e8f4ff" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="今日喝水" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <title>今日喝水</title>
+  <style>
+    :root{
+      --bg1:#f8fbff;
+      --bg2:#eaf5ff;
+      --card:rgba(255,255,255,.82);
+      --text:#14324b;
+      --muted:#70869a;
+      --blue:#4ba8ff;
+      --blue2:#75c7ff;
+      --deep:#1f6fb2;
+      --line:#d9ebfb;
+      --shadow:0 18px 50px rgba(56,119,170,.14);
+    }
+    *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    html,body{margin:0;min-height:100%;background:
+      radial-gradient(circle at 20% 0%, #ffffff 0 14%, transparent 35%),
+      linear-gradient(160deg,var(--bg1),var(--bg2));
+      font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue",Arial,sans-serif;
+      color:var(--text);
+    }
+    body{min-height:100vh;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+    .app{max-width:520px;margin:0 auto;min-height:100vh;padding:20px 18px 28px;display:flex;flex-direction:column}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .title-wrap h1{margin:0;font-size:29px;letter-spacing:-.5px}
+    .title-wrap p{margin:4px 0 0;color:var(--muted);font-size:14px}
+    .history-btn{
+      border:0;background:rgba(255,255,255,.86);box-shadow:0 7px 20px rgba(51,110,156,.09);
+      width:44px;height:44px;border-radius:15px;font-size:20px;cursor:pointer
+    }
+    .card{background:var(--card);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+      border:1px solid rgba(255,255,255,.9);border-radius:30px;box-shadow:var(--shadow)}
+    .hero{position:relative;overflow:hidden;padding:22px 18px 18px;min-height:470px}
+    .stats{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .amount{font-size:46px;font-weight:780;line-height:1}
+    .amount small{font-size:18px;font-weight:650;color:var(--muted)}
+    .goal{text-align:right;color:var(--muted);font-size:14px;line-height:1.5}
+    .progress{height:12px;background:#e9f2f8;border-radius:999px;margin-top:16px;overflow:hidden}
+    .progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--blue2));border-radius:inherit;transition:width .45s cubic-bezier(.2,.8,.2,1)}
+    .person-area{position:relative;height:310px;display:flex;align-items:center;justify-content:center}
+    .bubble{
+      position:absolute;left:18px;top:26px;background:white;border:1px solid var(--line);
+      border-radius:18px 18px 18px 5px;padding:9px 13px;color:var(--deep);font-weight:700;
+      box-shadow:0 9px 22px rgba(48,116,171,.09);opacity:0;transform:translateY(5px);transition:.25s
+    }
+    .bubble.show{opacity:1;transform:translateY(0)}
+    .figure{width:220px;height:280px;position:relative}
+    .head{position:absolute;width:72px;height:78px;border-radius:47% 47% 44% 44%;background:#ffd9bc;left:74px;top:13px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.03)}
+    .hair{position:absolute;width:78px;height:42px;border-radius:44px 44px 18px 18px;background:#2c3440;left:71px;top:8px}
+    .hair:after{content:"";position:absolute;width:28px;height:32px;background:#2c3440;right:1px;top:20px;border-radius:0 20px 20px 15px}
+    .eye{position:absolute;width:5px;height:5px;border-radius:50%;background:#263746;top:47px}
+    .eye.l{left:92px}.eye.r{left:125px}
+    .mouth{position:absolute;width:17px;height:7px;border-bottom:2px solid #d07a6c;border-radius:50%;left:102px;top:68px}
+    .neck{position:absolute;width:28px;height:29px;background:#ffd9bc;left:96px;top:80px;border-radius:0 0 10px 10px}
+    .body{position:absolute;width:118px;height:140px;left:51px;top:101px;background:linear-gradient(#77bdf5,#4e9fe2);border-radius:34px 34px 26px 26px}
+    .leg{position:absolute;width:40px;height:72px;background:#344f68;top:226px;border-radius:0 0 17px 17px}
+    .leg.l{left:66px}.leg.r{left:114px}
+    .arm{position:absolute;width:31px;height:116px;background:#ffd9bc;top:111px;border-radius:20px;transform-origin:50% 14px;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+    .arm.l{left:38px;transform:rotate(14deg)}
+    .arm.r{right:37px;transform:rotate(-15deg)}
+    .cup{position:absolute;right:12px;top:168px;width:44px;height:56px;border:4px solid #5fb5f3;border-top-width:3px;border-radius:7px 7px 14px 14px;background:linear-gradient(to top,#69c7ff 0 58%,rgba(255,255,255,.78) 58%);transform-origin:50% 80%;transition:.45s cubic-bezier(.2,.8,.2,1)}
+    .cup:after{content:"";position:absolute;right:-20px;top:10px;width:18px;height:24px;border:4px solid #5fb5f3;border-left:0;border-radius:0 15px 15px 0}
+    .figure.drink .arm.r{transform:rotate(-97deg) translate(-5px,-2px)}
+    .figure.drink .cup{transform:translate(-48px,-93px) rotate(-24deg)}
+    .drop{position:absolute;width:13px;height:18px;background:#5fc4ff;border-radius:60% 50% 60% 50%;transform:rotate(45deg);opacity:0}
+    .figure.drink .drop{animation:drop .65s ease 1}
+    .drop.d1{right:79px;top:86px}.drop.d2{right:64px;top:70px;animation-delay:.08s}
+    @keyframes drop{0%{opacity:0;transform:translateY(-4px) rotate(45deg) scale(.5)}30%{opacity:1}100%{opacity:0;transform:translateY(36px) rotate(45deg) scale(1)}}
+    .percent{text-align:center;margin-top:-2px;font-weight:700;color:var(--deep);font-size:15px}
+    .buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+    .drink-btn{border:0;border-radius:20px;padding:17px 8px;background:#fff;color:var(--deep);font-size:16px;font-weight:760;box-shadow:0 10px 22px rgba(44,106,155,.10);cursor:pointer;transition:transform .12s,box-shadow .12s}
+    .drink-btn:active{transform:scale(.96);box-shadow:0 4px 10px rgba(44,106,155,.12)}
+    .drink-btn strong{display:block;font-size:22px}
+    .footer-note{text-align:center;color:var(--muted);font-size:12px;margin-top:14px}
+    .modal{position:fixed;inset:0;background:rgba(20,49,73,.24);display:none;align-items:flex-end;justify-content:center;padding:14px;z-index:20}
+    .modal.show{display:flex}
+    .sheet{width:min(520px,100%);max-height:78vh;background:#f9fcff;border-radius:28px;padding:18px 16px 20px;box-shadow:0 -14px 50px rgba(18,59,92,.18);overflow:auto}
+    .sheet-head{display:flex;align-items:center;justify-content:space-between;position:sticky;top:-18px;background:#f9fcff;padding:2px 0 12px;z-index:2}
+    .sheet h2{margin:0;font-size:23px}
+    .close{border:0;background:#e9f3fb;width:38px;height:38px;border-radius:50%;font-size:20px}
+    .record{display:flex;justify-content:space-between;align-items:center;background:#fff;padding:14px 15px;border-radius:18px;margin:10px 0;border:1px solid #edf5fb}
+    .record .date{font-weight:720}.record .sub{font-size:12px;color:var(--muted);margin-top:3px}
+    .record .ml{font-weight:800;color:var(--deep)}
+    .empty{text-align:center;color:var(--muted);padding:28px 8px}
+    .reset{width:100%;margin-top:12px;border:0;border-radius:16px;padding:13px;background:#eef5fa;color:#698094}
+    @media (max-height:720px){.hero{min-height:430px}.person-area{height:270px;transform:scale(.9);margin:-10px 0}.app{padding-top:12px}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="topbar">
+      <div class="title-wrap">
+        <h1>今日喝水</h1>
+        <p id="dateText">保持一点点，也是在照顾自己。</p>
+      </div>
+      <button class="history-btn" id="historyBtn" aria-label="查看历史记录">🗓️</button>
+    </div>
+
+    <section class="card hero">
+      <div class="stats">
+        <div class="amount"><span id="amount">0</span><small> ml</small></div>
+        <div class="goal">今日目标<br><strong>1500 ml</strong></div>
+      </div>
+      <div class="progress"><div id="progressBar"></div></div>
+
+      <div class="person-area">
+        <div class="bubble" id="bubble">喝得不错！</div>
+        <div class="figure" id="figure" aria-label="喝水人物动画">
+          <div class="hair"></div>
+          <div class="head"></div>
+          <div class="eye l"></div><div class="eye r"></div>
+          <div class="mouth"></div>
+          <div class="neck"></div>
+          <div class="body"></div>
+          <div class="arm l"></div><div class="arm r"></div>
+          <div class="cup"></div>
+          <div class="drop d1"></div><div class="drop d2"></div>
+          <div class="leg l"></div><div class="leg r"></div>
+        </div>
+      </div>
+      <div class="percent" id="percentText">今天完成 0%</div>
+    </section>
+
+    <div class="buttons">
+      <button class="drink-btn" data-ml="50"><strong>+50</strong>ml</button>
+      <button class="drink-btn" data-ml="100"><strong>+100</strong>ml</button>
+      <button class="drink-btn" data-ml="200"><strong>+200</strong>ml</button>
+    </div>
+    <div class="footer-note">记录会保存在这台设备里 · 每天自动开始新的一天</div>
+  </main>
+
+  <div class="modal" id="modal">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2>喝水记录</h2>
+        <button class="close" id="closeBtn">×</button>
+      </div>
+      <div id="historyList"></div>
+      <button class="reset" id="resetToday">清空今天记录</button>
+    </div>
+  </div>
+
+<script>
+  const GOAL = 1500;
+  const STORAGE_KEY = 'waterTrackerV1';
+
+  const amountEl = document.getElementById('amount');
+  const progressBar = document.getElementById('progressBar');
+  const percentText = document.getElementById('percentText');
+  const dateText = document.getElementById('dateText');
+  const figure = document.getElementById('figure');
+  const bubble = document.getElementById('bubble');
+  const modal = document.getElementById('modal');
+  const historyList = document.getElementById('historyList');
+
+  function localDateKey(d = new Date()){
+    const y = d.getFullYear();
+    const m = String(d.getMonth()+1).padStart(2,'0');
+    const day = String(d.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }
+
+  function loadData(){
+    try{
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {days:{}};
+    }catch(e){
+      return {days:{}};
+    }
+  }
+
+  function saveData(data){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function ensureToday(data){
+    const key = localDateKey();
+    if(!data.days[key]) data.days[key] = {total:0, entries:[]};
+    return data;
+  }
+
+  function formatDateCN(key){
+    const [y,m,d] = key.split('-');
+    return `${Number(m)}月${Number(d)}日`;
+  }
+
+  function updateUI(){
+    const data = ensureToday(loadData());
+    saveData(data);
+    const today = data.days[localDateKey()];
+    const total = today.total || 0;
+    const pct = Math.min(100, Math.round(total / GOAL * 100));
+
+    amountEl.textContent = total;
+    progressBar.style.width = pct + '%';
+    percentText.textContent = total >= GOAL
+      ? `目标完成 🎉  ${pct}%`
+      : `今天完成 ${pct}%`;
+
+    const now = new Date();
+    dateText.textContent = `${now.getMonth()+1}月${now.getDate()}日 · 每天目标 ${GOAL} ml`;
+  }
+
+  let animTimer;
+  function animateDrink(ml){
+    clearTimeout(animTimer);
+    figure.classList.remove('drink');
+    void figure.offsetWidth;
+    figure.classList.add('drink');
+    bubble.textContent = `+${ml} ml`;
+    bubble.classList.add('show');
+    animTimer = setTimeout(()=>{
+      figure.classList.remove('drink');
+      bubble.classList.remove('show');
+    }, 900);
+  }
+
+  function addWater(ml){
+    const data = ensureToday(loadData());
+    const key = localDateKey();
+    const now = new Date();
+    data.days[key].total += ml;
+    data.days[key].entries.push({
+      ml,
+      time: now.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',hour12:false})
+    });
+    saveData(data);
+    updateUI();
+    animateDrink(ml);
+    if(navigator.vibrate) navigator.vibrate(20);
+  }
+
+  document.querySelectorAll('.drink-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>addWater(Number(btn.dataset.ml)));
+  });
+
+  function renderHistory(){
+    const data = loadData();
+    const keys = Object.keys(data.days || {}).sort().reverse();
+    if(!keys.length){
+      historyList.innerHTML = '<div class="empty">还没有喝水记录。</div>';
+      return;
+    }
+    historyList.innerHTML = keys.map(key=>{
+      const d = data.days[key];
+      const pct = Math.round((d.total||0)/GOAL*100);
+      const entries = (d.entries||[]).map(e=>`${e.time} +${e.ml}ml`).join(' · ');
+      return `<div class="record">
+        <div>
+          <div class="date">${formatDateCN(key)}</div>
+          <div class="sub">${entries || '无明细'}</div>
+        </div>
+        <div class="ml">${d.total||0} ml<br><span style="font-size:12px;color:#7890a3;font-weight:600">${pct}%</span></div>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('historyBtn').addEventListener('click',()=>{
+    renderHistory();
+    modal.classList.add('show');
+  });
+  document.getElementById('closeBtn').addEventListener('click',()=>modal.classList.remove('show'));
+  modal.addEventListener('click',(e)=>{ if(e.target===modal) modal.classList.remove('show'); });
+
+  document.getElementById('resetToday').addEventListener('click',()=>{
+    if(!confirm('确定要清空今天的喝水记录吗？')) return;
+    const data = ensureToday(loadData());
+    data.days[localDateKey()] = {total:0,entries:[]};
+    saveData(data);
+    updateUI();
+    renderHistory();
+  });
+
+  updateUI();
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+  }
+</script>
+</body>
+</html>
